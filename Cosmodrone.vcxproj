@@ -76,7 +76,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)\external\SDL2\include;$(SolutionDir)\external\GLEW\include;$(SolutionDir)\external\SDL_image\include;$(SolutionDir)\external\SDL_ttf\include;$(SolutionDir)\game;$(SolutionDir)\gamma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\SDL2\include;$(SolutionDir)\external\GLEW\include;$(SolutionDir)\external\SDL_image\include;$(SolutionDir)\external\SDL_ttf\include;$(SolutionDir)\cosmo;$(SolutionDir)\gamma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -97,7 +97,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)\external\SDL2\include;$(SolutionDir)\external\GLEW\include;$(SolutionDir)\external\SDL_image\include;$(SolutionDir)\external\SDL_ttf\include;$(SolutionDir)\game;$(SolutionDir)\gamma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\SDL2\include;$(SolutionDir)\external\GLEW\include;$(SolutionDir)\external\SDL_image\include;$(SolutionDir)\external\SDL_ttf\include;$(SolutionDir)\cosmo;$(SolutionDir)\gamma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -114,9 +114,9 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="game\GameController.cpp" />
-    <ClCompile Include="game\GameScene.cpp" />
-    <ClCompile Include="game\main.cpp" />
+    <ClCompile Include="cosmo\GameController.cpp" />
+    <ClCompile Include="cosmo\GameScene.cpp" />
+    <ClCompile Include="cosmo\main.cpp" />
     <ClCompile Include="gamma\math\matrix.cpp" />
     <ClCompile Include="gamma\math\orientation.cpp" />
     <ClCompile Include="gamma\math\Quaternion.cpp" />
@@ -152,9 +152,9 @@
     <ClCompile Include="gamma\system\yaml_parser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game\GameController.h" />
-    <ClInclude Include="game\GameScene.h" />
-    <ClInclude Include="game\gamma_flags.h" />
+    <ClInclude Include="cosmo\GameController.h" />
+    <ClInclude Include="cosmo\GameScene.h" />
+    <ClInclude Include="cosmo\gamma_flags.h" />
     <ClInclude Include="external\glew\include\eglew.h" />
     <ClInclude Include="external\glew\include\glew.h" />
     <ClInclude Include="external\glew\include\glxew.h" />

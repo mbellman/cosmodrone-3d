@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="game\main.cpp">
+    <ClCompile Include="cosmo\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gamma\opengl\OpenGLRenderer.cpp">
@@ -36,10 +36,10 @@
     <ClCompile Include="gamma\opengl\framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\GameController.cpp">
+    <ClCompile Include="cosmo\GameController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game\GameScene.cpp">
+    <ClCompile Include="cosmo\GameScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gamma\system\AbstractController.cpp">
@@ -428,10 +428,10 @@
     <ClInclude Include="gamma\system\type_aliases.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\GameController.h">
+    <ClInclude Include="cosmo\GameController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\GameScene.h">
+    <ClInclude Include="cosmo\GameScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gamma\math\geometry.h">
@@ -491,7 +491,7 @@
     <ClInclude Include="gamma\system\flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\gamma_flags.h">
+    <ClInclude Include="cosmo\gamma_flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gamma\system\ObjLoader.h">
