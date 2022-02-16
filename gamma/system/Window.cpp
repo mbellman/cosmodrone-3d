@@ -251,4 +251,8 @@ namespace Gamma {
     SDL_SetWindowPosition(sdl_window, region.x, region.y);
     SDL_SetWindowSize(sdl_window, region.width, region.height);
   }
+
+  void Window::setTitle(const char* title) {
+    SDL_SetWindowTitle(sdl_window, title);
+  }
 }
