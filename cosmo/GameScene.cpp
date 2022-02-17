@@ -6,31 +6,25 @@ void GameScene::init() {
 
   Gm_EnableFlags(Gamma::FREE_CAMERA_MODE);
 
-  addMesh("plane", 1, Mesh::Plane(5));
-  addMesh("cube", 1, Mesh::Cube());
+  addMesh("cube", 1000, Mesh::Cube());
 
-  auto& plane = createObjectFrom("plane");
-  auto& cube = createObjectFrom("cube");
+  for (int x = 0; x < 10; x++) {
+    for (int y = 0; y < 10; y++) {
+      for (int z = 0; z < 10; z++) {
+        auto& cube = createObjectFrom("cube");
 
-  plane.scale = 1000.0f;
+        cube.scale = 10.0f;
 
-  cube.scale = 20.0f;
-  cube.position.y = 20.0f;
-  cube.color = pVec4(255, 50, 50);
+        cube.position = Vec3f(
+          (x - 5) * 200.0f,
+          (y - 5) * 200.0f,
+          (z - 5) * 200.0f
+        );
 
-  commit(plane);
-  commit(cube);
-
-  auto& light = createLight(LightType::SPOT_SHADOWCASTER);
-
-  light.position = cube.position + Vec3f(-30.0f, 30.0f, -30.0f);
-  light.direction = cube.position - light.position;
-  light.color = Vec3f(1.0f, 0.9f, 0.2f);
-  light.radius = 500.0f;
-
-  camera.position = Vec3f(-100.0f, 75.0f, -150.0f);
-
-  lookAt(cube);
+        commit(cube);
+      }
+    }
+  }
 
   input.on<MouseMoveEvent>("mousemove", [&](const MouseMoveEvent& event) {
     if (SDL_GetRelativeMouseMode()) {
