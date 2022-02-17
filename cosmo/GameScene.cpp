@@ -21,28 +21,14 @@ void GameScene::init() {
 
   commit(drone);
 
-  // @todo bring into core
-  auto updateCamera = [&]() {
-    Vec3f pos = Vec3f(
-      cosf(t_camera.altitude) * cosf(t_camera.azimuth) * t_camera.radius,
-      sinf(t_camera.altitude) * t_camera.radius,
-      cosf(t_camera.altitude) * sinf(t_camera.azimuth) * t_camera.radius
-    );
-
-    camera.position = drone.position + pos;
-
-    lookAt(drone);
-  };
-
-  updateCamera();
-
-  input.on<MouseMoveEvent>("mousemove", [&, updateCamera](const MouseMoveEvent& event) {
+  input.on<MouseMoveEvent>("mousemove", [&](const MouseMoveEvent& event) {
     if (SDL_GetRelativeMouseMode()) {
       // @todo bring into core
-      t_camera.altitude += event.deltaY / 1000.0f;
-      t_camera.azimuth -= event.deltaX / 1000.0f;
+      constexpr float ALTITUDE_LIMIT = Gm_HALF_PI * 0.999f;
 
-      updateCamera();
+      t_camera.altitude += event.deltaY / 1000.0f;
+      t_camera.altitude = Gm_Clampf(t_camera.altitude, -ALTITUDE_LIMIT, ALTITUDE_LIMIT);
+      t_camera.azimuth -= event.deltaX / 1000.0f;
     }
   });
 
@@ -72,7 +58,48 @@ void GameScene::destroy() {
 }
 
 void GameScene::update(float dt) {
-  // ...
+  using namespace Gamma;
+
+  float force = 10.0f * dt;
+
+  if (input.isKeyHeld(Key::W)) {
+    player.momentum += camera.orientation.getDirection() * force;
+  } else if (input.isKeyHeld(Key::S)) {
+    player.momentum -= camera.orientation.getDirection() * force;
+  }
+
+  if (input.isKeyHeld(Key::A)) {
+    player.momentum += camera.orientation.getLeftDirection() * force;
+  } else if (input.isKeyHeld(Key::D)) {
+    player.momentum += camera.orientation.getRightDirection() * force;
+  }
+
+  player.position += player.momentum * force;
+
+  for (auto& drone : mesh("drone").objects) {
+    drone.position = player.position;
+
+    commit(drone);
+  }
+
+  updateCamera();
+}
+
+// @todo bring into core
+void GameScene::updateCamera() {
+  using namespace Gamma;
+
+  Vec3f pos = Vec3f(
+    cosf(t_camera.altitude) * cosf(t_camera.azimuth) * t_camera.radius,
+    sinf(t_camera.altitude) * t_camera.radius,
+    cosf(t_camera.altitude) * sinf(t_camera.azimuth) * t_camera.radius
+  );
+
+  for (auto& drone : mesh("drone").objects) {
+    camera.position = drone.position + pos;
+
+    lookAt(drone);
+  }
 }
 
 void GameScene::addCubeLattice() {

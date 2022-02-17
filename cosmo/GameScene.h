@@ -8,6 +8,11 @@ struct TrackingCamera {
   float radius = 100.0f;
 };
 
+struct Player {
+  Gamma::Vec3f position;
+  Gamma::Vec3f momentum;
+};
+
 class GameScene : public Gamma::AbstractScene {
 public:
   virtual void init() override;
@@ -16,6 +21,8 @@ public:
 
 private:
   void addCubeLattice();
+  void updateCamera();
 
   TrackingCamera t_camera;
+  Player player;
 };
