@@ -18,7 +18,6 @@ void GameScene::init() {
   auto& drone = createObjectFrom("drone");
 
   drone.scale = 25.0f;
-  drone.color = pVec4(200, 0, 200);
   drone.position = Vec3f(50.0f, 0, 0);
 
   commit(drone);
