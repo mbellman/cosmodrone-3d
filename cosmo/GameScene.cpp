@@ -76,29 +76,23 @@ void GameScene::update(float dt) {
 
   player.position += player.momentum * force;
 
-  for (auto& drone : mesh("drone").objects) {
-    drone.position = player.position;
-
-    commit(drone);
-  }
-
-  updateCamera();
-}
-
-// @todo bring into core
-void GameScene::updateCamera() {
-  using namespace Gamma;
-
-  Vec3f pos = Vec3f(
+  // @todo bring into core
+  Vec3f t_cameraPos = Vec3f(
     cosf(t_camera.altitude) * cosf(t_camera.azimuth) * t_camera.radius,
     sinf(t_camera.altitude) * t_camera.radius,
     cosf(t_camera.altitude) * sinf(t_camera.azimuth) * t_camera.radius
   );
 
   for (auto& drone : mesh("drone").objects) {
-    camera.position = drone.position + pos;
+    drone.position = player.position;
+    camera.position = drone.position + t_cameraPos;
 
     lookAt(drone);
+
+    drone.rotation.x = -camera.orientation.pitch;
+    drone.rotation.y = -camera.orientation.yaw;
+
+    commit(drone);
   }
 }
 

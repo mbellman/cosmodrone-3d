@@ -5,7 +5,7 @@
 struct TrackingCamera {
   float azimuth = 0.0f;
   float altitude = 0.0f;
-  float radius = 100.0f;
+  float radius = 150.0f;
 };
 
 struct Player {
@@ -21,7 +21,6 @@ public:
 
 private:
   void addCubeLattice();
-  void updateCamera();
 
   TrackingCamera t_camera;
   Player player;

@@ -256,7 +256,7 @@ namespace Gamma {
     ctx.matPreviousView = ctx.matView;
 
     ctx.matView = (
-      Matrix4f::rotation(camera.orientation.toVec3f()) *
+      Matrix4f::rotation(camera.orientation) *
       Matrix4f::translation(camera.position.invert().gl())
     ).transpose();
 
@@ -1271,7 +1271,7 @@ namespace Gamma {
       }
 
       Matrix4f matView = (
-        Matrix4f::rotation(probeCamera.orientation.toVec3f()) *
+        Matrix4f::rotation(probeCamera.orientation) *
         Matrix4f::translation(probeCamera.position.invert().gl())
       ).transpose();
 
