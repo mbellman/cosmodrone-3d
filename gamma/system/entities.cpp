@@ -135,26 +135,28 @@ namespace Gamma {
         faceElements.push_back(baseVertex + obj.faces[i].v3.vertexIndex);
       }
     } else {
+      // @todo @fix handle normals without texture coordinates
+
       // Texture coordinates defined, so we need to create
       // vertices by unique position/uv pairs, and add face
       // elements based on created vertices
-      typedef std::pair<uint32, uint32> VertexPair;
+      typedef std::tuple<uint32, uint32, uint32> VertexTuple;
 
-      std::map<VertexPair, uint32> pairToVertexIndexMap;
+      std::map<VertexTuple, uint32> pairToVertexTupleMap;
 
       for (const auto& face : obj.faces) {
-        VertexPair pairs[3] = {
-          { face.v1.vertexIndex, face.v1.textureCoordinateIndex },
-          { face.v2.vertexIndex, face.v2.textureCoordinateIndex },
-          { face.v3.vertexIndex, face.v3.textureCoordinateIndex }
+        VertexTuple vertexTuples[3] = {
+          { face.v1.vertexIndex, face.v1.textureCoordinateIndex, face.v1.normalIndex },
+          { face.v2.vertexIndex, face.v2.textureCoordinateIndex, face.v2.normalIndex },
+          { face.v3.vertexIndex, face.v3.textureCoordinateIndex, face.v3.normalIndex }
         };
 
         // Add face elements, creating vertices if necessary
         for (uint32 p = 0; p < 3; p++) {
-          auto& pair = pairs[p];
-          auto indexRecord = pairToVertexIndexMap.find(pair);
+          auto& vertexTuple = vertexTuples[p];
+          auto indexRecord = pairToVertexTupleMap.find(vertexTuple);
 
-          if (indexRecord != pairToVertexIndexMap.end()) {
+          if (indexRecord != pairToVertexTupleMap.end()) {
             // Vertex already exists, so we can just add the face element
             faceElements.push_back(indexRecord->second);
           } else {
@@ -162,14 +164,21 @@ namespace Gamma {
             Vertex vertex;
             uint32 index = vertices.size();
 
-            vertex.position = obj.vertices[pair.first];
+            vertex.position = obj.vertices[std::get<0>(vertexTuple)];
             // @todo see if uv.y needs to be inverted
-            vertex.uv = obj.textureCoordinates[pair.second];
-            
+            // @todo only assign if texture coordinates are defined
+            vertex.uv = obj.textureCoordinates[std::get<1>(vertexTuple)];
+
+            if (obj.normals.size() > 0) {
+              // Only assign the vertex normal if normals
+              // are manually defined in the obj data
+              vertex.normal = obj.normals[std::get<2>(vertexTuple)];
+            }
+
             vertices.push_back(vertex);
             faceElements.push_back(index);
 
-            pairToVertexIndexMap.emplace(pair, index);
+            pairToVertexTupleMap.emplace(vertexTuple, index);
           }
         }
       }
@@ -235,7 +244,11 @@ namespace Gamma {
     auto* mesh = new Mesh();
 
     Gm_BufferObjData(obj, mesh->vertices, mesh->faceElements);
-    Gm_ComputeNormals(mesh);
+
+    if (obj.normals.size() == 0) {
+      Gm_ComputeNormals(mesh);
+    }
+
     Gm_ComputeTangents(mesh);
 
     return mesh;

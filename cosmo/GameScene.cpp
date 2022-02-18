@@ -11,11 +11,13 @@ void GameScene::init() {
   sun.color = Vec3f(1.0f, 0.8f, 0.2f);
   sun.direction = Vec3f(0.5f, -1.0f, 1.0f);
 
-  addMesh("drone", 1, Mesh::Cube());
+  addMesh("drone", 1, Mesh::Model("./cosmo/obj/drone.obj"));
+
+  mesh("drone").type = MeshType::REFLECTIVE;
 
   auto& drone = createObjectFrom("drone");
 
-  drone.scale = Vec3f(10.0f, 10.0f, 30.0f);
+  drone.scale = 25.0f;
   drone.color = pVec4(200, 0, 200);
   drone.position = Vec3f(50.0f, 0, 0);
 
@@ -61,6 +63,7 @@ void GameScene::update(float dt) {
   using namespace Gamma;
 
   float speed = 100.0f * dt;
+  float droneRotationSpeed = 2.0f * dt;
 
   // @todo use drone orientation
   if (input.isKeyHeld(Key::W)) {
@@ -96,8 +99,8 @@ void GameScene::update(float dt) {
     p_drone.targetRotation.x = -camera.orientation.pitch;
     p_drone.targetRotation.y = -camera.orientation.yaw;
 
-    drone.rotation.x = Gm_Lerpf(drone.rotation.x, p_drone.targetRotation.x, dt);
-    drone.rotation.y = Gm_LerpCircularf(drone.rotation.y, p_drone.targetRotation.y, dt, Gm_PI);
+    drone.rotation.x = Gm_Lerpf(drone.rotation.x, p_drone.targetRotation.x, droneRotationSpeed);
+    drone.rotation.y = Gm_LerpCircularf(drone.rotation.y, p_drone.targetRotation.y, droneRotationSpeed, Gm_PI);
 
     commit(drone);
   }
