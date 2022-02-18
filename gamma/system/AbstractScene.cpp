@@ -185,6 +185,7 @@ namespace Gamma {
 
   void AbstractScene::lookAt(const Vec3f& position) {
     Vec3f forward = position - camera.position;
+    // @todo switch to using Vec3f(0, -1.0f, 0) when oriented upside-down
     Vec3f sideways = Vec3f::cross(forward, Vec3f(0, 1.0f, 0));
     Vec3f up = Vec3f::cross(sideways, forward);
 

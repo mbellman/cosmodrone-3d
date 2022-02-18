@@ -8,4 +8,23 @@ namespace Gamma {
   inline float Gm_Clampf(float value, float min, float max) {
     return value > max ? max : value < min ? min : value;
   }
+
+  inline float Gm_Lerpf(float a, float b, float alpha) {
+    return a + (b - a) * alpha;
+  }
+
+  /**
+   * @todo description
+   */
+  inline float Gm_LerpCircularf(float a, float b, float alpha, float maxRange) {
+    float range = b - a;
+
+    if (range > maxRange) {
+      a += maxRange * 2.0f;
+    } else if (range < -maxRange) {
+      a -= maxRange * 2.0f;
+    }
+
+    return a + range * alpha;
+  }
 }

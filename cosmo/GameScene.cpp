@@ -60,21 +60,23 @@ void GameScene::destroy() {
 void GameScene::update(float dt) {
   using namespace Gamma;
 
-  float force = 10.0f * dt;
+  float speed = 100.0f * dt;
 
+  // @todo use drone orientation
   if (input.isKeyHeld(Key::W)) {
-    player.momentum += camera.orientation.getDirection() * force;
+    p_drone.momentum += camera.orientation.getDirection() * speed;
   } else if (input.isKeyHeld(Key::S)) {
-    player.momentum -= camera.orientation.getDirection() * force;
+    p_drone.momentum -= camera.orientation.getDirection() * speed;
   }
 
+  // @todo use drone orientation
   if (input.isKeyHeld(Key::A)) {
-    player.momentum += camera.orientation.getLeftDirection() * force;
+    p_drone.momentum += camera.orientation.getLeftDirection() * speed;
   } else if (input.isKeyHeld(Key::D)) {
-    player.momentum += camera.orientation.getRightDirection() * force;
+    p_drone.momentum += camera.orientation.getRightDirection() * speed;
   }
 
-  player.position += player.momentum * force;
+  p_drone.position += p_drone.momentum * dt;
 
   // @todo bring into core
   Vec3f t_cameraPos = Vec3f(
@@ -83,14 +85,19 @@ void GameScene::update(float dt) {
     cosf(t_camera.altitude) * sinf(t_camera.azimuth) * t_camera.radius
   );
 
+  // @todo support mesh(...).objects[index] when
+  // object indices are not expected to change
   for (auto& drone : mesh("drone").objects) {
-    drone.position = player.position;
+    drone.position = p_drone.position;
     camera.position = drone.position + t_cameraPos;
 
     lookAt(drone);
 
-    drone.rotation.x = -camera.orientation.pitch;
-    drone.rotation.y = -camera.orientation.yaw;
+    p_drone.targetRotation.x = -camera.orientation.pitch;
+    p_drone.targetRotation.y = -camera.orientation.yaw;
+
+    drone.rotation.x = Gm_Lerpf(drone.rotation.x, p_drone.targetRotation.x, dt);
+    drone.rotation.y = Gm_LerpCircularf(drone.rotation.y, p_drone.targetRotation.y, dt, Gm_PI);
 
     commit(drone);
   }

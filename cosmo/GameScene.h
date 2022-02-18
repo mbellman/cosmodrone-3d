@@ -8,9 +8,10 @@ struct TrackingCamera {
   float radius = 150.0f;
 };
 
-struct Player {
+struct PlayerDrone {
   Gamma::Vec3f position;
   Gamma::Vec3f momentum;
+  Gamma::Vec3f targetRotation;
 };
 
 class GameScene : public Gamma::AbstractScene {
@@ -23,5 +24,5 @@ private:
   void addCubeLattice();
 
   TrackingCamera t_camera;
-  Player player;
+  PlayerDrone p_drone;
 };
