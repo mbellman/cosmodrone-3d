@@ -142,7 +142,7 @@ namespace Gamma {
       // elements based on created vertices
       typedef std::tuple<uint32, uint32, uint32> VertexTuple;
 
-      std::map<VertexTuple, uint32> pairToVertexTupleMap;
+      std::map<VertexTuple, uint32> vertexTupleToIndexMap;
 
       for (const auto& face : obj.faces) {
         VertexTuple vertexTuples[3] = {
@@ -154,9 +154,9 @@ namespace Gamma {
         // Add face elements, creating vertices if necessary
         for (uint32 p = 0; p < 3; p++) {
           auto& vertexTuple = vertexTuples[p];
-          auto indexRecord = pairToVertexTupleMap.find(vertexTuple);
+          auto indexRecord = vertexTupleToIndexMap.find(vertexTuple);
 
-          if (indexRecord != pairToVertexTupleMap.end()) {
+          if (indexRecord != vertexTupleToIndexMap.end()) {
             // Vertex already exists, so we can just add the face element
             faceElements.push_back(indexRecord->second);
           } else {
@@ -178,7 +178,7 @@ namespace Gamma {
             vertices.push_back(vertex);
             faceElements.push_back(index);
 
-            pairToVertexTupleMap.emplace(vertexTuple, index);
+            vertexTupleToIndexMap.emplace(vertexTuple, index);
           }
         }
       }
