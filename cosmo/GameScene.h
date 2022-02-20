@@ -1,13 +1,5 @@
 #include "Gamma.h"
 
-// @todo bring into core; add a method on the
-// struct for computing spherical coordinates
-struct TrackingCamera {
-  float azimuth = 0.0f;
-  float altitude = 0.0f;
-  float radius = 150.0f;
-};
-
 struct PlayerDrone {
   Gamma::Vec3f position;
   Gamma::Vec3f momentum;
@@ -23,6 +15,6 @@ public:
 private:
   void addCubeLattice();
 
-  TrackingCamera t_camera;
-  PlayerDrone p_drone;
+  Gamma::ThirdPersonCamera thirdPersonCamera;
+  PlayerDrone playerDrone;
 };

@@ -25,8 +25,6 @@ namespace Gamma {
       a -= maxRange * 2.0f;
     }
 
-    range = b - a;
-
-    return a + range * alpha;
+    return a + (b - a) * alpha;
   }
 }

@@ -6,6 +6,8 @@ void GameScene::init() {
 
   addCubeLattice();
 
+  thirdPersonCamera.radius = 150.0f;
+
   auto& sun = createLight(LightType::DIRECTIONAL);
 
   sun.color = Vec3f(1.0f, 0.8f, 0.2f);
@@ -24,12 +26,11 @@ void GameScene::init() {
 
   input.on<MouseMoveEvent>("mousemove", [&](const MouseMoveEvent& event) {
     if (SDL_GetRelativeMouseMode()) {
-      // @todo bring into core
       constexpr float ALTITUDE_LIMIT = Gm_HALF_PI * 0.999f;
 
-      t_camera.altitude += event.deltaY / 1000.0f;
-      t_camera.altitude = Gm_Clampf(t_camera.altitude, -ALTITUDE_LIMIT, ALTITUDE_LIMIT);
-      t_camera.azimuth -= event.deltaX / 1000.0f;
+      thirdPersonCamera.altitude += event.deltaY / 1000.0f;
+      thirdPersonCamera.altitude = Gm_Clampf(thirdPersonCamera.altitude, -ALTITUDE_LIMIT, ALTITUDE_LIMIT);
+      thirdPersonCamera.azimuth -= event.deltaX / 1000.0f;
     }
   });
 
@@ -61,45 +62,38 @@ void GameScene::destroy() {
 void GameScene::update(float dt) {
   using namespace Gamma;
 
-  float speed = 100.0f * dt;
+  float droneMovementSpeed = 100.0f * dt;
   float droneRotationSpeed = 2.0f * dt;
 
   // @todo use drone orientation
   if (input.isKeyHeld(Key::W)) {
-    p_drone.momentum += camera.orientation.getDirection() * speed;
+    playerDrone.momentum += camera.orientation.getDirection() * droneMovementSpeed;
   } else if (input.isKeyHeld(Key::S)) {
-    p_drone.momentum -= camera.orientation.getDirection() * speed;
+    playerDrone.momentum -= camera.orientation.getDirection() * droneMovementSpeed;
   }
 
   // @todo use drone orientation
   if (input.isKeyHeld(Key::A)) {
-    p_drone.momentum += camera.orientation.getLeftDirection() * speed;
+    playerDrone.momentum += camera.orientation.getLeftDirection() * droneMovementSpeed;
   } else if (input.isKeyHeld(Key::D)) {
-    p_drone.momentum += camera.orientation.getRightDirection() * speed;
+    playerDrone.momentum += camera.orientation.getRightDirection() * droneMovementSpeed;
   }
 
-  p_drone.position += p_drone.momentum * dt;
-
-  // @todo bring into core
-  Vec3f t_cameraPos = Vec3f(
-    cosf(t_camera.altitude) * cosf(t_camera.azimuth) * t_camera.radius,
-    sinf(t_camera.altitude) * t_camera.radius,
-    cosf(t_camera.altitude) * sinf(t_camera.azimuth) * t_camera.radius
-  );
+  playerDrone.position += playerDrone.momentum * dt;
 
   // @todo support mesh(...).objects[index] when
   // object indices are not expected to change
   for (auto& drone : mesh("drone").objects) {
-    drone.position = p_drone.position;
-    camera.position = drone.position + t_cameraPos;
+    drone.position = playerDrone.position;
+    camera.position = drone.position + thirdPersonCamera.calculatePosition();
 
     lookAt(drone);
 
-    p_drone.targetRotation.x = -camera.orientation.pitch;
-    p_drone.targetRotation.y = -camera.orientation.yaw;
+    playerDrone.targetRotation.x = -camera.orientation.pitch;
+    playerDrone.targetRotation.y = -camera.orientation.yaw;
 
-    drone.rotation.x = Gm_Lerpf(drone.rotation.x, p_drone.targetRotation.x, droneRotationSpeed);
-    drone.rotation.y = Gm_LerpCircularf(drone.rotation.y, p_drone.targetRotation.y, droneRotationSpeed, Gm_PI);
+    drone.rotation.x = Gm_Lerpf(drone.rotation.x, playerDrone.targetRotation.x, droneRotationSpeed);
+    drone.rotation.y = Gm_LerpCircularf(drone.rotation.y, playerDrone.targetRotation.y, droneRotationSpeed, Gm_PI);
 
     commit(drone);
   }
