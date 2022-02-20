@@ -48,8 +48,8 @@ namespace Gamma {
     Object& createObjectFrom(const std::string& meshName);
     void destroyLight(Light& light);
     Object& getObject(const std::string& name);
-    void lookAt(const Object& object);
-    void lookAt(const Vec3f& position);
+    void lookAt(const Object& object, bool upsideDown = false);
+    void lookAt(const Vec3f& position, bool upsideDown = false);
     Mesh& mesh(const std::string& meshName);
     void removeMesh(const std::string& meshName);
     void storeObject(const std::string&, Object& object);

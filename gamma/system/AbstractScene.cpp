@@ -179,15 +179,17 @@ namespace Gamma {
     }
   }
 
-  void AbstractScene::lookAt(const Object& object) {
-    lookAt(object.position);
+  void AbstractScene::lookAt(const Object& object, bool upsideDown) {
+    lookAt(object.position, upsideDown);
   }
 
-  void AbstractScene::lookAt(const Vec3f& position) {
-    Vec3f forward = position - camera.position;
-    // @todo switch to using Vec3f(0, -1.0f, 0) when oriented upside-down
+  void AbstractScene::lookAt(const Vec3f& position, bool upsideDown) {
+    Vec3f forward = (position - camera.position).unit();
     Vec3f sideways = Vec3f::cross(forward, Vec3f(0, 1.0f, 0));
-    Vec3f up = Vec3f::cross(sideways, forward);
+
+    Vec3f up = upsideDown
+      ? Vec3f::cross(forward, sideways)
+      : Vec3f::cross(sideways, forward);
 
     camera.orientation.face(forward, up);
   }

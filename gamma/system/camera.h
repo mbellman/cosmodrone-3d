@@ -18,5 +18,7 @@ namespace Gamma {
     float radius = 100.0f;
 
     Vec3f calculatePosition() const;
+    bool isUpsideDown() const;
+    void limitAltitude(float factor);
   };
 }

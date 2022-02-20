@@ -26,11 +26,13 @@ void GameScene::init() {
 
   input.on<MouseMoveEvent>("mousemove", [&](const MouseMoveEvent& event) {
     if (SDL_GetRelativeMouseMode()) {
-      constexpr float ALTITUDE_LIMIT = Gm_HALF_PI * 0.999f;
-
       thirdPersonCamera.altitude += event.deltaY / 1000.0f;
-      thirdPersonCamera.altitude = Gm_Clampf(thirdPersonCamera.altitude, -ALTITUDE_LIMIT, ALTITUDE_LIMIT);
-      thirdPersonCamera.azimuth -= event.deltaX / 1000.0f;
+
+      if (thirdPersonCamera.isUpsideDown()) {
+        thirdPersonCamera.azimuth += event.deltaX / 1000.0f;
+      } else {
+        thirdPersonCamera.azimuth -= event.deltaX / 1000.0f;
+      }
     }
   });
 
@@ -87,12 +89,12 @@ void GameScene::update(float dt) {
     drone.position = playerDrone.position;
     camera.position = drone.position + thirdPersonCamera.calculatePosition();
 
-    lookAt(drone);
+    lookAt(drone, thirdPersonCamera.isUpsideDown());
 
     playerDrone.targetRotation.x = -camera.orientation.pitch;
     playerDrone.targetRotation.y = -camera.orientation.yaw;
 
-    drone.rotation.x = Gm_Lerpf(drone.rotation.x, playerDrone.targetRotation.x, droneRotationSpeed);
+    drone.rotation.x = Gm_LerpCircularf(drone.rotation.x, playerDrone.targetRotation.x, droneRotationSpeed, Gm_PI);
     drone.rotation.y = Gm_LerpCircularf(drone.rotation.y, playerDrone.targetRotation.y, droneRotationSpeed, Gm_PI);
 
     commit(drone);
