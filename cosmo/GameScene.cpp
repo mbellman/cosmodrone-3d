@@ -4,13 +4,28 @@
 void GameScene::init() {
   using namespace Gamma;
 
-  addCubeLattice();
+  // addCubeLattice();
 
-  thirdPersonCamera.radius = 150.0f;
+  addMesh("elevator", 1, Mesh::Model("./cosmo/obj/elevator-cable.obj"));
+  addMesh("earth", 1, Mesh::Plane(4));
+
+  auto& elevator = createObjectFrom("elevator");
+  auto& earth = createObjectFrom("earth");
+
+  mesh("earth").texture = "./cosmo/images/islands.png";
+
+  elevator.scale = 100.0f;
+  elevator.color = pVec4(20, 20, 30);
+  earth.scale = 10000.0f;
+
+  commit(elevator);
+  commit(earth);
+
+  thirdPersonCamera.radius = 75.0f;
 
   auto& sun = createLight(LightType::DIRECTIONAL);
 
-  sun.color = Vec3f(1.0f, 0.8f, 0.2f);
+  sun.color = Vec3f(1.0f, 0.9f, 0.5f);
   sun.direction = Vec3f(0.5f, -1.0f, 1.0f);
 
   addMesh("drone", 1, Mesh::Model("./cosmo/obj/drone.obj"));
@@ -19,8 +34,8 @@ void GameScene::init() {
 
   auto& drone = createObjectFrom("drone");
 
-  drone.scale = 25.0f;
-  drone.position = Vec3f(50.0f, 0, 0);
+  drone.scale = 10.0f;
+  playerDrone.position = Vec3f(300.0f, 0, 0);
 
   commit(drone);
 
@@ -64,7 +79,7 @@ void GameScene::destroy() {
 void GameScene::update(float dt) {
   using namespace Gamma;
 
-  float droneMovementSpeed = 100.0f * dt;
+  float droneMovementSpeed = 30.0f * dt;
   float droneRotationSpeed = 2.0f * dt;
 
   // @todo use drone orientation
@@ -98,6 +113,20 @@ void GameScene::update(float dt) {
     drone.rotation.y = Gm_LerpCircularf(drone.rotation.y, playerDrone.targetRotation.y, droneRotationSpeed, Gm_PI);
 
     commit(drone);
+  }
+
+  for (auto& elevator : mesh("elevator").objects) {
+    elevator.position.y = playerDrone.position.y;
+
+    commit(elevator);
+  }
+
+  for (auto& earth : mesh("earth").objects) {
+    earth.position.y = playerDrone.position.y - 9500.0f;
+    earth.position.x = playerDrone.position.x * 0.9f;
+    earth.position.z = playerDrone.position.z * 0.9f;
+
+    commit(earth);
   }
 }
 
