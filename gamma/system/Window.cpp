@@ -117,6 +117,7 @@ namespace Gamma {
         lastTick = SDL_GetTicks();
 
         Camera::active = &activeScene->camera;
+
         activeScene->updateScene(dt);
 
         if (renderer != nullptr) {
@@ -127,6 +128,7 @@ namespace Gamma {
 
           #if GAMMA_DEVELOPER_MODE
             // Display stats
+            // @todo make this a method
             auto& resolution = renderer->getInternalResolution();
             auto& renderStats = renderer->getRenderStats();
             auto& sceneStats = activeScene->getStats();

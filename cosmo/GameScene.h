@@ -13,7 +13,8 @@ public:
   virtual void update(float dt) override;
 
 private:
-  void addCubeLattice();
+  void addSpaceElevatorCable();
+  void updateSpaceElevatorCable();
 
   Gamma::ThirdPersonCamera thirdPersonCamera;
   PlayerDrone playerDrone;

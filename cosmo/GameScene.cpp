@@ -4,21 +4,15 @@
 void GameScene::init() {
   using namespace Gamma;
 
-  // addCubeLattice();
+  addSpaceElevatorCable();
 
-  addMesh("elevator", 1, Mesh::Model("./cosmo/obj/elevator-cable.obj"));
-  addMesh("earth", 1, Mesh::Plane(4));
+  addMesh("earth", 1, Mesh::Model("./cosmo/obj/ball.obj"));
+  mesh("earth").texture = "./cosmo/images/earth.png";
 
-  auto& elevator = createObjectFrom("elevator");
   auto& earth = createObjectFrom("earth");
 
-  mesh("earth").texture = "./cosmo/images/islands.png";
+  earth.scale = 1000.0f;
 
-  elevator.scale = 100.0f;
-  elevator.color = pVec4(20, 20, 30);
-  earth.scale = 10000.0f;
-
-  commit(elevator);
   commit(earth);
 
   thirdPersonCamera.radius = 75.0f;
@@ -115,41 +109,57 @@ void GameScene::update(float dt) {
     commit(drone);
   }
 
+  for (auto& earth : mesh("earth").objects) {
+    earth.position.y = playerDrone.position.y - 9500.0f;
+    earth.position.x = playerDrone.position.x;
+    earth.position.z = playerDrone.position.z;
+
+    commit(earth);
+  }
+
+  updateSpaceElevatorCable();
+}
+
+void GameScene::addSpaceElevatorCable() {
+  using namespace Gamma;
+
+  addMesh("elevator", 1, Mesh::Model("./cosmo/obj/elevator-cable.obj"));
+
+  auto& elevator = createObjectFrom("elevator");
+
+  elevator.color = pVec4(20, 20, 30);
+
+  commit(elevator);
+}
+
+void GameScene::updateSpaceElevatorCable() {
+  using namespace Gamma;
+
+  mesh("elevator").transformGeometry([&](const Vertex& baseVertex, Vertex& transformedVertex) {
+    float heightRatio = Gm_Absf(baseVertex.position.y) / 1.0f;
+
+    // Shrink to center near the vanishing points
+    transformedVertex.position.x = baseVertex.position.x * (1.0f - heightRatio);
+    transformedVertex.position.y = baseVertex.position.y;
+    transformedVertex.position.z = baseVertex.position.z * (1.0f - heightRatio);
+
+    // Apply scale to transformed geometry directly
+    transformedVertex.position.x *= 100.0f;
+    transformedVertex.position.y *= 5000.0f;
+    transformedVertex.position.z *= 100.0f;
+
+    // Curve toward the player drone near the vanishing points
+    transformedVertex.position.x = Gm_Lerpf(transformedVertex.position.x, playerDrone.position.x, heightRatio);
+    // @todo -playerDrone.position.z is a hack for the z-flip
+    // which occurs in the geometry vertex shader. That in itself
+    // may be a mistake, since +z vertices are being flipped to -z
+    // in world space. @see: gl.glsl, glMat4()
+    transformedVertex.position.z = Gm_Lerpf(transformedVertex.position.z, -playerDrone.position.z, heightRatio);
+  });
+
   for (auto& elevator : mesh("elevator").objects) {
     elevator.position.y = playerDrone.position.y;
 
     commit(elevator);
-  }
-
-  for (auto& earth : mesh("earth").objects) {
-    earth.position.y = playerDrone.position.y - 9500.0f;
-    earth.position.x = playerDrone.position.x * 0.9f;
-    earth.position.z = playerDrone.position.z * 0.9f;
-
-    commit(earth);
-  }
-}
-
-void GameScene::addCubeLattice() {
-  using namespace Gamma;
-
-  addMesh("cube", 1000, Mesh::Cube());
-
-  for (int x = 0; x < 10; x++) {
-    for (int y = 0; y < 10; y++) {
-      for (int z = 0; z < 10; z++) {
-        auto& cube = createObjectFrom("cube");
-
-        cube.scale = 10.0f;
-
-        cube.position = Vec3f(
-          (x - 5) * 200.0f,
-          (y - 5) * 200.0f,
-          (z - 5) * 200.0f
-        );
-
-        commit(cube);
-      }
-    }
   }
 }

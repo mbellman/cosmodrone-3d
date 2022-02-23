@@ -166,8 +166,8 @@ namespace Gamma {
             vertex.position = obj.vertices[std::get<0>(vertexTuple)];
 
             if (obj.textureCoordinates.size() > 0) {
-              // @todo see if uv.y needs to be inverted
               vertex.uv = obj.textureCoordinates[std::get<1>(vertexTuple)];
+              vertex.uv.y *= -1.0f;
             }
 
             if (obj.normals.size() > 0) {
@@ -356,6 +356,25 @@ namespace Gamma {
     Gm_ComputeTangents(mesh);
 
     return mesh;
+  }
+
+  /**
+   * Mesh::transformGeometry()
+   * -------------------------
+   *
+   * @todo description
+   */
+  void Mesh::transformGeometry(std::function<void(const Vertex&, Vertex&)> handler) {
+    // Copy vertices the first time
+    if (transformedVertices.size() == 0) {
+      for (auto& vertex : vertices) {
+        transformedVertices.push_back(vertex);
+      }
+    }
+
+    for (uint32 i = 0; i < vertices.size(); i++) {
+      handler(vertices[i], transformedVertices[i]);
+    }
   }
 
   /**
