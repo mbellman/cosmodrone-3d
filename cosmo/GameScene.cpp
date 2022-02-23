@@ -150,11 +150,7 @@ void GameScene::updateSpaceElevatorCable() {
 
     // Curve toward the player drone near the vanishing points
     transformedVertex.position.x = Gm_Lerpf(transformedVertex.position.x, playerDrone.position.x, heightRatio);
-    // @todo -playerDrone.position.z is a hack for the z-flip
-    // which occurs in the geometry vertex shader. That in itself
-    // may be a mistake, since +z vertices are being flipped to -z
-    // in world space. @see: gl.glsl, glMat4()
-    transformedVertex.position.z = Gm_Lerpf(transformedVertex.position.z, -playerDrone.position.z, heightRatio);
+    transformedVertex.position.z = Gm_Lerpf(transformedVertex.position.z, playerDrone.position.z, heightRatio);
   });
 
   for (auto& elevator : mesh("elevator").objects) {

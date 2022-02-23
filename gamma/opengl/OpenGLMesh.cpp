@@ -150,6 +150,7 @@ namespace Gamma {
       auto& transformedVertices = sourceMesh->transformedVertices;
 
       glBindBuffer(GL_ARRAY_BUFFER, buffers[GLBuffer::VERTEX]);
+      // @todo glMapBuffer (?)
       glBufferData(GL_ARRAY_BUFFER, transformedVertices.size() * sizeof(Vertex), transformedVertices.data(), GL_DYNAMIC_DRAW);
     }
 

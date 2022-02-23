@@ -92,6 +92,7 @@ namespace Gamma {
 
     // Enable default OpenGL settings
     glEnable(GL_PROGRAM_POINT_SIZE);
+    glFrontFace(GL_CW);
 
     #if !GAMMA_DEVELOPER_MODE
       // Set uniform shader constants upfront, since
