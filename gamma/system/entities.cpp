@@ -167,7 +167,6 @@ namespace Gamma {
 
             if (obj.textureCoordinates.size() > 0) {
               vertex.uv = obj.textureCoordinates[std::get<1>(vertexTuple)];
-              vertex.uv.y *= -1.0f;
             }
 
             if (obj.normals.size() > 0) {

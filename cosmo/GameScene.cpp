@@ -12,6 +12,8 @@ void GameScene::init() {
   auto& earth = createObjectFrom("earth");
 
   earth.scale = 1000.0f;
+  earth.rotation.x = Gm_HALF_PI;
+  earth.rotation.z = -0.3f;
 
   commit(earth);
 
@@ -127,7 +129,10 @@ void GameScene::addSpaceElevatorCable() {
 
   auto& elevator = createObjectFrom("elevator");
 
-  elevator.color = pVec4(20, 20, 30);
+  mesh("elevator").texture = "./cosmo/images/carbon-fiber.png";
+  mesh("elevator").normalMap = "./cosmo/images/carbon-fiber-normals.png";
+
+  elevator.color = pVec4(100, 100, 120);
 
   commit(elevator);
 }
@@ -138,10 +143,8 @@ void GameScene::updateSpaceElevatorCable() {
   mesh("elevator").transformGeometry([&](const Vertex& baseVertex, Vertex& transformedVertex) {
     float heightRatio = Gm_Absf(baseVertex.position.y) / 1.0f;
 
-    // Shrink to center near the vanishing points
-    transformedVertex.position.x = baseVertex.position.x * (1.0f - heightRatio);
-    transformedVertex.position.y = baseVertex.position.y;
-    transformedVertex.position.z = baseVertex.position.z * (1.0f - heightRatio);
+    // Start from the base vertex position
+    transformedVertex.position = baseVertex.position;
 
     // Apply scale to transformed geometry directly
     transformedVertex.position.x *= 100.0f;
@@ -151,6 +154,10 @@ void GameScene::updateSpaceElevatorCable() {
     // Curve toward the player drone near the vanishing points
     transformedVertex.position.x = Gm_Lerpf(transformedVertex.position.x, playerDrone.position.x, heightRatio);
     transformedVertex.position.z = Gm_Lerpf(transformedVertex.position.z, playerDrone.position.z, heightRatio);
+
+    // Scroll UVs with drone y position, since the cable object
+    // stays locked with the drone along the y axis
+    transformedVertex.uv.y = baseVertex.position.y * 20.0f + playerDrone.position.y * 0.002f;
   });
 
   for (auto& elevator : mesh("elevator").objects) {
