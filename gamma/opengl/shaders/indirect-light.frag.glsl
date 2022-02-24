@@ -71,6 +71,7 @@ float getScreenSpaceAmbientOcclusionContribution(float fragment_depth, vec3 frag
   for (int i = 0; i < TOTAL_SAMPLES; i++) {
     vec3 sample_offset = tbn * ssao_sample_points[i];
     vec3 world_sample_position = fragment_position + sample_offset * radius;
+    // @hack invert Z
     vec3 view_sample_position = glVec3(matView * glVec4(world_sample_position));
     vec2 screen_sample_position = getScreenCoordinates(view_sample_position, matProjection);
     float sample_depth = textureLod(texColorAndDepth, screen_sample_position, 3).w;
@@ -101,6 +102,7 @@ vec3 getScreenSpaceGlobalIlluminationContribution(float fragment_depth, vec3 fra
   vec3 camera_to_fragment = normalize(fragment_position - cameraPosition);
   vec3 reflection_vector = reflect(camera_to_fragment, fragment_normal);
   vec3 world_bounce_ray = fragment_position + reflection_vector * 10.0;
+  // @hack invert Z
   vec3 view_bounce_ray = glVec3(matView * glVec4(world_bounce_ray));
   vec2 bounce_ray_coords = getScreenCoordinates(view_bounce_ray, matProjection);
 
@@ -175,6 +177,7 @@ void main() {
     // same-frame convergence without temporal denoising.
     const int radius = 5;
     const float temporal_sample_weight = 4.0;
+    // @hack invert Z
     vec3 view_fragment_position_t1 = glVec3(matViewT1 * glVec4(fragment_position));
     vec2 frag_uv_t1 = getScreenCoordinates(view_fragment_position_t1.xyz, matProjection);
 

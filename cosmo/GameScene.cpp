@@ -100,8 +100,8 @@ void GameScene::update(float dt) {
 
     lookAt(drone, thirdPersonCamera.isUpsideDown());
 
-    playerDrone.targetRotation.x = -camera.orientation.pitch;
-    playerDrone.targetRotation.y = -camera.orientation.yaw;
+    playerDrone.targetRotation.x = camera.orientation.pitch;
+    playerDrone.targetRotation.y = camera.orientation.yaw;
 
     drone.rotation.x = Gm_LerpCircularf(drone.rotation.x, playerDrone.targetRotation.x, droneRotationSpeed, Gm_PI);
     drone.rotation.y = Gm_LerpCircularf(drone.rotation.y, playerDrone.targetRotation.y, droneRotationSpeed, Gm_PI);
