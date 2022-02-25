@@ -1,21 +1,12 @@
 #include "Gamma.h"
 #include "GameScene.h"
 
+using namespace Gamma;
+
 void GameScene::init() {
-  using namespace Gamma;
-
+  addEarth();
   addSpaceElevatorCable();
-
-  addMesh("earth", 1, Mesh::Model("./cosmo/obj/ball.obj"));
-  mesh("earth").texture = "./cosmo/images/earth.png";
-
-  auto& earth = createObjectFrom("earth");
-
-  earth.scale = 1000.0f;
-  earth.rotation.x = Gm_HALF_PI;
-  earth.rotation.z = -0.3f;
-
-  commit(earth);
+  addSpaceElevatorModules();
 
   thirdPersonCamera.radius = 75.0f;
 
@@ -73,8 +64,6 @@ void GameScene::destroy() {
 }
 
 void GameScene::update(float dt) {
-  using namespace Gamma;
-
   float droneMovementSpeed = 30.0f * dt;
   float droneRotationSpeed = 2.0f * dt;
 
@@ -120,11 +109,23 @@ void GameScene::update(float dt) {
   }
 
   updateSpaceElevatorCable();
+  updateSpaceElevatorModules();
+}
+
+void GameScene::addEarth() {
+  addMesh("earth", 1, Mesh::Model("./cosmo/obj/ball.obj"));
+  mesh("earth").texture = "./cosmo/images/earth.png";
+
+  auto& earth = createObjectFrom("earth");
+
+  earth.scale = 1000.0f;
+  earth.rotation.x = Gm_HALF_PI;
+  earth.rotation.z = -0.3f;
+
+  commit(earth);
 }
 
 void GameScene::addSpaceElevatorCable() {
-  using namespace Gamma;
-
   addMesh("elevator", 1, Mesh::Model("./cosmo/obj/elevator-cable.obj"));
 
   auto& elevator = createObjectFrom("elevator");
@@ -137,9 +138,18 @@ void GameScene::addSpaceElevatorCable() {
   commit(elevator);
 }
 
-void GameScene::updateSpaceElevatorCable() {
-  using namespace Gamma;
+void GameScene::addSpaceElevatorModules() {
+  addMesh("tube", 1, Mesh::Model("./cosmo/obj/elevator-tube.obj"));
 
+  auto& tube = createObjectFrom("tube");
+
+  tube.scale = 500.0f;
+  tube.position.y = 500.0f;
+
+  commit(tube);
+}
+
+void GameScene::updateSpaceElevatorCable() {
   mesh("elevator").transformGeometry([&](const Vertex& baseVertex, Vertex& transformedVertex) {
     float heightRatio = Gm_Absf(baseVertex.position.y) / 1.0f;
 
@@ -157,12 +167,33 @@ void GameScene::updateSpaceElevatorCable() {
 
     // Scroll UVs with drone y position, since the cable object
     // stays locked with the drone along the y axis
-    transformedVertex.uv.y = baseVertex.position.y * 20.0f + playerDrone.position.y * 0.002f;
+    transformedVertex.uv.y = baseVertex.position.y * 20.0f + playerDrone.position.y * 0.004f;
   });
 
   for (auto& elevator : mesh("elevator").objects) {
     elevator.position.y = playerDrone.position.y;
 
     commit(elevator);
+  }
+}
+
+void GameScene::updateSpaceElevatorModules() {
+  // @todo this appropriately causes modules to asymptotically
+  // approach the vanishing point, but they move way too quickly
+  // near the player drone y position
+  float limit = 1.0f - 1.0f / (Gm_Absf(playerDrone.position.y) + 1.0f);
+  float yOffset = playerDrone.position.y < 0.0f ? 5000.0f * limit : -5000.0f * limit;
+
+  for (auto& tube : mesh("tube").objects) {
+    float modulePosition = 0.0f;  // @temp
+    float moduleYOffset = modulePosition + yOffset;
+    float heightRatio = Gm_Absf(moduleYOffset) / 5000.0f;
+
+    tube.position.x = Gm_Lerpf(0, playerDrone.position.x, heightRatio);
+    tube.position.z = Gm_Lerpf(0, playerDrone.position.z, heightRatio);
+    tube.position.y = playerDrone.position.y + moduleYOffset;
+    tube.scale = 500.0f * (1.0f - heightRatio);
+
+    commit(tube);
   }
 }
