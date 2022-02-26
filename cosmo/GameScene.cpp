@@ -178,15 +178,22 @@ void GameScene::updateSpaceElevatorCable() {
 }
 
 void GameScene::updateSpaceElevatorModules() {
-  // @todo this appropriately causes modules to asymptotically
-  // approach the vanishing point, but they move way too quickly
-  // near the player drone y position
-  float limit = 1.0f - 1.0f / (Gm_Absf(playerDrone.position.y) + 1.0f);
-  float yOffset = playerDrone.position.y < 0.0f ? 5000.0f * limit : -5000.0f * limit;
+  // @todo @cleanup this code works but is a bit messy/ad-hoc.
+  // organize and refactor it a little and it'll be good to go
+  auto limit = [](float x) {
+    return 1.0f - 1.0f / (x + 1.0f);
+  };
+
+  float limitFactor = limit(Gm_Absf(playerDrone.position.y / 5000.0f));
+
+  float modulePosition = 0.0f;
+  float directionFactor = playerDrone.position.y > modulePosition ? -1.0f : 1.0f;
+  float moduleYOffset = (0.0f + 5000.0f * limitFactor * directionFactor);
 
   for (auto& tube : mesh("tube").objects) {
     float modulePosition = 0.0f;  // @temp
-    float moduleYOffset = modulePosition + yOffset;
+    float directionFactor = playerDrone.position.y > modulePosition ? -1.0f : 1.0f;
+    float moduleYOffset = modulePosition + 5000.0f * limitFactor * directionFactor;
     float heightRatio = Gm_Absf(moduleYOffset) / 5000.0f;
 
     tube.position.x = Gm_Lerpf(0, playerDrone.position.x, heightRatio);
