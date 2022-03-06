@@ -1,7 +1,25 @@
+#include <string>
+#include <vector>
+
 #include "Gamma.h"
 #include "GameScene.h"
 
 using namespace Gamma;
+
+typedef std::tuple<std::string, std::string, std::vector<float>> SpaceElevatorModule;
+
+const static std::vector<SpaceElevatorModule> SPACE_ELEVATOR_MODULES = {
+  {
+    "tube",
+    "./cosmo/obj/elevator-tube.obj",
+    { 0.0f }
+  },
+  {
+    "complex",
+    "./cosmo/obj/elevator-complex.obj",
+    { 2000.0f }
+  }
+};
 
 void GameScene::init() {
   addEarth();
@@ -139,14 +157,19 @@ void GameScene::addSpaceElevatorCable() {
 }
 
 void GameScene::addSpaceElevatorModules() {
-  addMesh("tube", 1, Mesh::Model("./cosmo/obj/elevator-tube.obj"));
+  for (auto& module : SPACE_ELEVATOR_MODULES) {
+    auto& meshName = std::get<0>(module);
+    auto meshObjPath = std::get<1>(module).c_str();
 
-  auto& tube = createObjectFrom("tube");
+    addMesh(meshName, 1, Mesh::Model(meshObjPath));
 
-  tube.scale = 500.0f;
-  tube.position.y = 500.0f;
+    auto& object = createObjectFrom(meshName);
 
-  commit(tube);
+    // @todo make configurable
+    object.scale = 500.0f;
+
+    commit(object);
+  }
 }
 
 void GameScene::updateSpaceElevatorCable() {
@@ -178,29 +201,31 @@ void GameScene::updateSpaceElevatorCable() {
 }
 
 void GameScene::updateSpaceElevatorModules() {
-  // @todo @cleanup this code works but is a bit messy/ad-hoc.
-  // organize and refactor it a little and it'll be good to go
   auto limit = [](float x) {
     return 1.0f - 1.0f / (x + 1.0f);
   };
 
-  float limitFactor = limit(Gm_Absf(playerDrone.position.y / 5000.0f));
+  for (auto& module : SPACE_ELEVATOR_MODULES) {
+    auto& meshName = std::get<0>(module);
+    auto& objects = mesh(meshName).objects;
+    auto& positions = std::get<2>(module);
+    uint32 index = 0;
 
-  float modulePosition = 0.0f;
-  float directionFactor = playerDrone.position.y > modulePosition ? -1.0f : 1.0f;
-  float moduleYOffset = (0.0f + 5000.0f * limitFactor * directionFactor);
+    for (auto position : positions) {
+      float distance = Gm_Absf(playerDrone.position.y - position);
+      float distanceFactor = limit(distance / 5000.0f);
+      float directionFactor = playerDrone.position.y > position ? -1.0f : 1.0f;
+      float moduleYOffset = 5000.0f * distanceFactor * directionFactor;
+      float distanceRatio = Gm_Absf(moduleYOffset) / 5000.0f;
+      auto& object = objects[index++];
 
-  for (auto& tube : mesh("tube").objects) {
-    float modulePosition = 0.0f;  // @temp
-    float directionFactor = playerDrone.position.y > modulePosition ? -1.0f : 1.0f;
-    float moduleYOffset = modulePosition + 5000.0f * limitFactor * directionFactor;
-    float heightRatio = Gm_Absf(moduleYOffset) / 5000.0f;
+      object.position.x = Gm_Lerpf(0, playerDrone.position.x, distanceRatio);
+      object.position.z = Gm_Lerpf(0, playerDrone.position.z, distanceRatio);
+      object.position.y = playerDrone.position.y + moduleYOffset;
+      // @todo make configurable
+      object.scale = 500.0f * (1.0f - distanceRatio);
 
-    tube.position.x = Gm_Lerpf(0, playerDrone.position.x, heightRatio);
-    tube.position.z = Gm_Lerpf(0, playerDrone.position.z, heightRatio);
-    tube.position.y = playerDrone.position.y + moduleYOffset;
-    tube.scale = 500.0f * (1.0f - heightRatio);
-
-    commit(tube);
+      commit(object);
+    }
   }
 }
