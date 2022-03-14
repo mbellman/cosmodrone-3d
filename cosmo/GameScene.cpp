@@ -74,6 +74,11 @@ void GameScene::init() {
         Gm_EnableFlags(GammaFlags::VSYNC);
       }
     }
+
+    // @temp
+    if (key == Key::F) {
+      playerDrone.momentum = Vec3f(0.0);
+    }
   });
 }
 
