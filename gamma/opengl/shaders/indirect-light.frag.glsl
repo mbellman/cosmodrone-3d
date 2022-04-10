@@ -14,6 +14,7 @@ uniform mat4 matInverseView;
 uniform mat4 matProjection;
 uniform mat4 matInverseProjection;
 uniform mat4 matViewT1;
+uniform int frame;
 
 noperspective in vec2 fragUv;
 
@@ -46,7 +47,8 @@ const vec3[] ssao_sample_points = {
 vec2 texel_size = 1.0 / screenSize;
 
 vec2 rotatedVogelDisc(int samples, int index) {
-  float rotation = noise(1.0) * 3.141592 * 2.0;
+  float f = frame % 4;
+  float rotation = noise(1.0 + f) * 3.141592 * 2.0;
   float theta = 2.4 * index + rotation;
   float radius = sqrt(float(index) + 0.5) / sqrt(float(samples));
 
@@ -61,7 +63,8 @@ float getScreenSpaceAmbientOcclusionContribution(float fragment_depth, vec3 frag
   float linearized_fragment_depth = getLinearizedDepth(fragment_depth);
   float occlusion = 0.0;
 
-  vec3 random_vector = vec3(noise(1.0), noise(3.0), noise(6.0));
+  float f = frame % 4;
+  vec3 random_vector = vec3(noise(1.0 + f), noise(2.0 + f), noise(3.0 + f));
   vec3 tangent = normalize(random_vector - fragment_normal * dot(random_vector, fragment_normal));
   vec3 bitangent = cross(fragment_normal, tangent);
   mat3 tbn = mat3(tangent, bitangent, fragment_normal);
@@ -153,4 +156,37 @@ void main() {
   #endif
 
   out_gi_and_ao = vec4(global_illumination * 0.75, ambient_occlusion);
+
+  #if USE_DENOISING == 1
+    vec3 view_fragment_position_t1 = glVec3(matViewT1 * glVec4(fragment_position));
+    vec2 frag_uv_t1 = getScreenCoordinates(view_fragment_position_t1.xyz, matProjection);
+    vec4 sample_t1 = texture(texIndirectLightT1, frag_uv_t1);
+    float linearized_fragment_depth = getLinearizedDepth(frag_color_and_depth.w);
+    float weight = 1.0;
+    float sample_sum = 0.0;
+
+    float sample_depth = textureLod(texColorAndDepth, frag_uv_t1, 1).w;
+    float linear_sample_depth = getLinearizedDepth(sample_depth);
+
+    if (distance(linearized_fragment_depth, linear_sample_depth) < 1.0) {
+      out_gi_and_ao += sample_t1 * weight;
+      sample_sum += weight;
+    }
+
+    for (int x = -2; x <= 2; x++) {
+      for (int y = -2; y <= 2; y++) {
+        vec2 offset = vec2(x, y) * texel_size * 3.0;
+        vec2 sample_uv = frag_uv_t1 + offset;
+        float sample_depth = textureLod(texColorAndDepth, sample_uv, 1).w;
+        float linear_sample_depth = getLinearizedDepth(sample_depth);
+
+        if (distance(linearized_fragment_depth, linear_sample_depth) < 2.0) {
+          out_gi_and_ao += texture(texIndirectLightT1, sample_uv) * weight * 0.2;
+          sample_sum += weight * 0.2;
+        }
+      }
+    }
+
+    out_gi_and_ao /= (1.0 + sample_sum);
+  #endif
 }

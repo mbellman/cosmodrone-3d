@@ -110,6 +110,10 @@ namespace Gamma {
     return mesh.objects.getByRecord(record);
   }
 
+  const uint32 AbstractScene::getFrame() const {
+    return frame;
+  }
+
   const std::vector<Light>& AbstractScene::getLights() const {
     return lights;
   }
@@ -225,6 +229,8 @@ namespace Gamma {
     }
 
     update(dt);
+
+    frame++;
 
     #if GAMMA_DEVELOPER_MODE
       // @todo extract into its own method

@@ -34,6 +34,7 @@ namespace Gamma {
 
     virtual ~AbstractScene();
 
+    const uint32 getFrame() const;
     const std::vector<Light>& getLights() const;
     const std::map<std::string, Vec3f> getProbeMap() const;
     const float getRunningTime();
@@ -69,6 +70,7 @@ namespace Gamma {
     float runningTime = 0.0f;
     Vec3f freeCameraVelocity = Vec3f(0.0f);
     uint16 runningMeshId = 0;
+    uint32 frame = 0;
 
     Object* findObject(const ObjectRecord& record);
     void handleFreeCameraMode(float dt);

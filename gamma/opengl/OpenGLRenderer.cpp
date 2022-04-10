@@ -883,7 +883,7 @@ namespace Gamma {
       shaders.indirectLight.setMatrix4f("matInverseProjection", ctx.matInverseProjection);
       shaders.indirectLight.setMatrix4f("matInverseView", ctx.matInverseView);
       shaders.indirectLight.setMatrix4f("matViewT1", ctx.matPreviousView);
-      shaders.indirectLight.setFloat("time", AbstractScene::active->getRunningTime());
+      shaders.indirectLight.setInt("frame", AbstractScene::active->getFrame());
 
       OpenGLScreenQuad::render();
 
@@ -893,6 +893,7 @@ namespace Gamma {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
     }
 
+    // Composite the indirect lighting result into the accumulation target buffer
     buffers.gBuffer.read();
     currentIndirectLightBuffer.read();
     ctx.accumulationTarget->write();

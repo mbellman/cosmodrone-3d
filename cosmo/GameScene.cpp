@@ -26,6 +26,17 @@ void GameScene::init() {
   addSpaceElevatorCable();
   addSpaceElevatorModules();
 
+  addMesh("lucy", 1, Mesh::Model("./cosmo/obj/lucy.obj"));
+
+  // mesh("lucy").texture = "./cosmo/images/stone-texture.png";
+
+  auto& lucy = createObjectFrom("lucy");
+
+  lucy.position = Vec3f(200.0f, 200.0f, -200.0f);
+  lucy.scale = 20.0f;
+
+  commit(lucy);
+
   thirdPersonCamera.radius = 75.0f;
 
   auto& sun = createLight(LightType::DIRECTIONAL);
@@ -89,6 +100,12 @@ void GameScene::destroy() {
 void GameScene::update(float dt) {
   float droneMovementSpeed = 30.0f * dt;
   float droneRotationSpeed = 2.0f * dt;
+
+  auto& lucy = mesh("lucy").objects[0];
+
+  lucy.rotation.y += dt * 0.5f;
+
+  commit(lucy);
 
   // @todo use drone orientation
   if (input.isKeyHeld(Key::W)) {
